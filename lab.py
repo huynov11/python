@@ -1,10 +1,7 @@
-from reportlab.pdfgen import canvas
-
-c = canvas.Canvas("infor.pdf", pagesize=(595.27, 841.89))
-
-c.setFont('Times-Roman',10)
+from xhtml2pdf import pisa
 
 lst = []
+source_html = []
 
 def outInfor(dic): #Xuất dữ liệu
     print('========== User Ifor ==========')
@@ -40,33 +37,15 @@ def trEx_int(msg):  #Xử lý ngoại lệ
         return trEx_int(msg)
 
 
-def showInfor(user_lst): #Xuất tất cả các dữ liệu 
+def showInfor(user_lst): #In tất cả các dữ liệu 
     for user in user_lst:
         outInfor(user)
+    print(lst)
 
 
-def exportPDF(user_lst): # Xuất tất cả dữ liệu ra pdf
-    for user in user_lst:
-        drawInfoUserInPdf(user)    
-    print('Success')
 
 
-def drawInfoUserInPdf(user): #Xuất ra pdf
-    global ToaDoY
-    c.drawString(50,780-ToaDoY,'Birthday : ')
-    c.drawString(50,760-ToaDoY,'Phone : ')
-    c.drawString(50,740-ToaDoY,'Email : ')
-    c.drawString(50,720-ToaDoY, '-'*30)
 
-
-    c.drawString(50, 800-ToaDoY, user['name'],c.setFont('Times-Roman',30))
-    c.drawString(120, 780-ToaDoY, user['phone_value'],c.setFont('Times-Roman',10))
-    c.drawString(120, 760-ToaDoY, user['email_value'],c.setFont('Times-Roman',10))
-    c.drawString(120, 740-ToaDoY, user['birthday'],c.setFont('Times-Roman',10))
-
-    ToaDoY += 120
-
-ToaDoY = 0
 
 def sortedUser(): # Sắp xếp id
 
@@ -151,7 +130,7 @@ def sortedYear():
     print(lst)
 
 
-def reInfor(user_lst): # Xóa dữ liệu
+def removeInfor(user_lst): # Xóa dữ liệu
     del_user = int(input('Enter id : '))
     for i in range(len(user_lst)):
         if user_lst[i]['id'] == del_user:
@@ -179,7 +158,7 @@ while True:
         lst.append(user)
 
     elif lua_chon == 2:
-        reInfor(lst)
+        removeInfor(lst)
 
     elif lua_chon == 3:
         while True:
@@ -187,7 +166,7 @@ while True:
                                 '1-Sort id \n'+
                                 '2-Sort name \n'+
                                 '3-Sort birth \n'+
-                                '4-Quit'
+                                '4-Quit\n'+
                                 'Enter your answer : '))
             
             if choices == 1:
@@ -208,11 +187,57 @@ while True:
         showInfor(lst)
 
     elif lua_chon == 5: 
-        exportPDF(lst)
+        for i in lst:
+            user_html = f"""
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>TEST</title>
 
+    </head>
+    <body>
+        <div><img src="https://scontent-hkg4-1.xx.fbcdn.net/v/t1.30497-1/143086968_2856368904622192_1959732218791162458_n.png?_nc_cat=1&cb=99be929b-59f725be&ccb=1-7&_nc_sid=7206a8&_nc_ohc=DH2e7R2-NdgAX8QfZX-&_nc_ht=scontent-hkg4-1.xx&oh=00_AfC15rMxMACqzfDATkLyr4TN-IugZ-q5srOeXqV547CMfw&oe=64D1E6F8" ></div>
+        <div>
+            <h1>ID  : {i['id']}  </h1>
+        </div>
+        <div>
+            <h1>Name : {i['name']}   </h1>
+        </div>
+        <div>
+            <h1>Birthday : {i['birthday']}   </h1>
+        </div> 
+        <div>
+            <h1>Phone : {i['phone_value']}  </h1>
+        </div>
+        <div>
+            <h1>Email : {i['email_value']}  </h1>
+        </div>
+        <hr>
+    </body>
+</html>
+"""
+        
+            source_html.append(user_html)
+
+
+        output_filename = "infor.pdf"
+        source = ''.join(source_html)
+        print(source)
+        def convert_to_pdf(sourcePDF,outputPDF):
+
+
+            result_file = open(outputPDF,'w+b')
+            pisa_status = pisa.CreatePDF(sourcePDF,dest=result_file)
+
+            result_file.close()
+            return pisa_status.error
+
+        if __name__ == '__main__':
+            pisa.showLogging()
+            convert_to_pdf(source,output_filename)
+        print('Success')
+    
     elif lua_chon == 6:
         print('Done')
         break
-
-c.showPage()
-c.save()
