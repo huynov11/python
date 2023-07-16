@@ -1,8 +1,12 @@
 from xhtml2pdf import pisa
 from datetime import datetime
+import os
 
 lst = []
 source_html = []
+
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
 
 def outInfor(dic): #Xuất dữ liệu
     print('========== User Ifor ==========')
@@ -14,22 +18,31 @@ def outInfor(dic): #Xuất dữ liệu
           'Email_value : ', str(dic['email_value']))
     print('===============================')
 
-
 def validate():
         import datetime
-
         try:
-            birthday = input('enter : \n'+
+            birthday = input('Enter your birthday \n'+
                              'ex: YYYY-MM-DD  : ')
             datetime.date.fromisoformat(birthday)
         except :
+            print('Incorect input!')
             return validate()
         return birthday
 
-def inputUserKB(): #Nhập thông tin
 
+def tryceptID():
+
+    user_id_trycep = trEx_int('id')
+    for i in lst:
+        if i['id'] == user_id_trycep:
+            print('ID have been used!') 
+            return tryceptID()
+    else:
+        return user_id_trycep
+
+def inputUserKB(): #Nhập thông tin
     user = {}
-    user['id'] = trEx_int('id')
+    user['id'] = tryceptID()
     user['name'] = input('Enter your name : ')
     user['birthday']= validate()
     user['phone_value'] = input('Enter your phone : ')
@@ -38,18 +51,19 @@ def inputUserKB(): #Nhập thông tin
     return user
 
 
+
 def trEx_int(msg):  #Xử lý ngoại lệ
     try:
         num = int(input(f'Enter your {msg} : '))
         return num
     except:
+        print('Incorect input!')
         return trEx_int(msg)
 
 
 def showInfor(user_lst): #In tất cả các dữ liệu 
     for user in user_lst:
         outInfor(user)
-    print(lst)
 
 
 def ExportPDF(user_lst):
@@ -109,7 +123,6 @@ def sortedUser(): # Sắp xếp id
                 return  
 
 
-
 def sortedName(): #Sắp xếp tên
 
 
@@ -127,7 +140,6 @@ def sortedName(): #Sắp xếp tên
                 return  
 
 
-
 def sortedDate():
 
     global lst
@@ -142,8 +154,6 @@ def sortedDate():
         if not swapped:
             return
         
-
-
         
 def sortedMonth():
 
@@ -157,8 +167,6 @@ def sortedMonth():
                 lst[j],lst[j+1] = lst[j+1],lst[j]
         if not swapped:
             return 
-
-
 
 def sortedYear():
 
@@ -211,120 +219,299 @@ def inputUser(id,name,birthday,phone_value,email_value): #Nhập thông tin
 
 
 def inputfromCSV():
-    
-    with open(input('Nhap file : '),'r') as f:
-        read_line = f.readlines()
+    try:
+        with open(input('Nhap file : '),'r') as f:
+            read_line = f.readlines()
+
+        for i in range(1,len(read_line)):
+            data = ''.join(read_line[i].split('\n')).split(',')
+            user = inputUser(data[0],data[1],data[2],data[3],data[4])
+            lst.append(user)
+    except FileNotFoundError as er:
+        print(er)
+        return inputfromCSV()
+
+def updateUser():
+    try:
+        user_id = int(input('Enter your ID : '))
+        for i in lst:
+            if i['id'] == user_id:
+                print('Success')
+                while True:
+                    print('==================================')
+                    choice_update = int(input('1-Name\n'+
+                                                '2-Birthday\n'+
+                                                '3-Phone\n'+
+                                                '4-Email\n'+
+                                                '5-Quit\n'+
+                                                '==================================\n'+
+                                                'Enter your answer : '))
+                    
+                    if choice_update == 1:
+                        cls()
+                        i['name'] = input('Enter your name : ')
+
+                    elif choice_update == 2:
+                        cls()
+                        i['birthday'] = validate()
+
+                    elif choice_update == 3:
+                        cls()
+                        i['phone_value'] = input('Enter your phone : ')   
+
+                    elif choice_update == 4:
+                        cls()
+                        i['email_value'] = input('Enter your email : ')   
+
+                    elif choice_update == 5:
+                        choice_quit = toQuit()
+
+                        if choice_quit == 'n':
+                            print('==================================')
+                            print('Success')
+                            print('==================================')
+
+                        elif choice_quit == 'Y':
+                            print('==================================')
+                            print('Success')
+                            print('==================================')
+                            return
+
+        if i['id'] != user_id:
+            print('ID not found!')
+            return updateUser()
+        
+    except:
+        print('Incorect input')
+        return updateUser()
 
 
-    for i in range(1,len(read_line)):
-        data = ''.join(read_line[i].split('\n')).split(',')
-        user = inputUser(data[0],data[1],data[2],data[3],data[4])
-        lst.append(user)
-
-
-
-while True:
-    print('==================================')
-    lua_chon = int(input('Select number \n'+
+def tryceptLoop():
+    try:
+        choose = int(input('Select number \n'+
                             '1-Input data \n'+
                             '2-Delete data \n' +
                             '3-Sort information \n'+
-                            '4-Show all information\n' +
-                            '5-Export to PDF\n' + 
-                            '6-Export to CSV\n' + 
-                            '7-Input from CSV\n' +
-                            '8-Quit    \n'+
+                            '4-Update information \n'+
+                            '5-Show all information\n' +
+                            '6-Export to PDF\n' + 
+                            '7-Export to CSV\n' + 
+                            '8-Input from CSV\n' +
+                            '9-Quit    \n'+
                             '================================== \n'+
                             'Enter your answer : '))
-    print('==================================')
+        print('==================================')
+        return choose
+    except:
+        print('==================================')
+        print('Incorrect input !')
+        print('==================================')
+        return tryceptLoop()
 
-    if lua_chon == 1:
-        user = inputUserKB()
-        lst.append(user)
-
-    elif lua_chon == 2:
-        if len(lst) == 0:
-            print('No Data Found!')
-        else:
-            removeInfor(lst)
-            print('Success')
-
-    elif lua_chon == 3:
-        if len(lst) == 0:
-            print('No Data Found!')
-        else:
-            while True:
-                choices = int(input('Select number \n'+
+def tryceptSort():
+    try:
+        choice_sort = int(input('Select number \n'+
                                     '1-Sort id \n'+
                                     '2-Sort name \n'+
                                     '3-Sort birth \n'+
                                     '4-Quit\n'+
+                                    '==================================\n'+
                                     'Enter your answer : '))
+        return choice_sort
+    except:
+        print('==================================')
+        print('Incorrect input !')
+        print('==================================')
+        return tryceptSort()
+
+def trycept_ASC_DES():
+    try:
+        choice_asc_des = int(input('Select number \n'+
+                                    '1-Ascending \n'+
+                                    '2-Descending\n'+
+                                    '==================================\n'+
+                                    'Enter your answer : '))
+        
+        return choice_asc_des
+    except:
+        print('==================================')
+        print('Incorrect input !')
+        print('==================================')
+        return trycept_ASC_DES()
+
+
+def toQuit():
+    choice_quit = input('Are you sure? \n'+
+                        'Y/n : ')
+
+    if choice_quit == 'Y':
+        print()
+
+    elif choice_quit == 'n':
+        cls()
+
+
+    else:
+        return toQuit()
+    return choice_quit
+
+while True:
+    print('==================================')
+    lua_chon = tryceptLoop()
+
+    if lua_chon == 1:
+        cls()
+        user = inputUserKB()
+        lst.append(user)
+
+    elif lua_chon == 2:
+        cls()
+        if len(lst) == 0:
+            print('==================================')
+            print('No Data Found!')
+            print('==================================')
+        else:
+            removeInfor(lst)
+            print('==================================')
+            print('Success')
+            print('==================================')
+
+    elif lua_chon == 3:
+        cls()
+        if len(lst) == 0:
+            print('==================================')
+            print('No Data Found!')
+            print('==================================')
+        else:
+            while True:
+                print('==================================')
+                choices = tryceptSort()
                 
                 if choices == 1:
-                    asc_des = int(input('Select number \n'+
-                                    '1-Ascending \n'+
-                                    '2-Descending\n'+
-                                    'Enter your answer : '))
+                    cls()
+                    print('==================================')
+                    asc_des = trycept_ASC_DES()
+
                     if asc_des == 1:
+                        cls()
                         sortedUser()
+                        print('==================================')
                         print('Success')
+                        print('==================================')
 
                     elif asc_des == 2:
+                        cls()
                         sortedUser()
                         lst.reverse()
+                        print('==================================') 
                         print('Success')
+                        print('==================================')
 
                 elif choices == 2:
-                    asc_des = int(input('Select number \n'+
-                                    '1-Ascending \n'+
-                                    '2-Descending\n'+
-                                    'Enter your answer : '))
+                    cls()
+                    print('==================================')
+                    asc_des = trycept_ASC_DES()
+
                     if asc_des == 1:
+                        cls()
                         sortedName()
+                        print('==================================')
                         print('Success')
+                        print('==================================') 
 
                     elif asc_des == 2:
+                        cls()
                         sortedName()
                         lst.reverse()
+                        print('==================================')
                         print('Success')
+                        print('==================================')
 
                 elif choices == 3:
-                    asc_des = int(input('Select number \n'+
-                                    '1-Ascending \n'+
-                                    '2-Descending\n'+
-                                    'Enter your answer : '))
+                    cls()
+                    print('==================================')
+                    asc_des = trycept_ASC_DES()
                     
                     if asc_des == 1:
+                        cls()
                         sortedDate()
                         sortedMonth()
                         sortedYear()
+                        print('==================================')
                         print('Success')
+                        print('==================================')
 
                     elif asc_des == 2:
+
+                        cls()
                         sortedDate()
                         sortedMonth()
                         sortedYear()                    
                         lst.reverse()
+                        print('==================================')
                         print('Success')
+                        print('==================================') 
 
                 elif choices == 4:
-                    break
+                    cls()
+                    sort_quit = toQuit()
+                    if sort_quit == 'n':
+                        print('==================================')
+                        print('Success')
+                        print('==================================')
+
+                    elif sort_quit == 'Y':
+                        print('==================================')
+                        print('Success')
+                        print('==================================')
+                        break
             
     elif lua_chon == 4:
-        showInfor(lst)
+        cls()
+        if len(lst) == 0:
+            print('No Data Found')
+        else:
+            updateUser()
 
     elif lua_chon == 5: 
-        ExportPDF(lst)
+        cls()
+        showInfor(lst)
+        print('==================================')
         print('Success')
+        print('==================================')
     
     elif lua_chon == 6:
-        exportCSV(lst)
+        cls()
+        ExportPDF(lst)
+        print('==================================')
         print('Success')
+        print('==================================')
 
     elif lua_chon == 7:
-        inputfromCSV()
+        cls()
+        exportCSV(lst)
+        print('==================================')
         print('Success')
+        print('==================================')
 
     elif lua_chon == 8:
-        break
+        cls()
+        inputfromCSV()
+        print('==================================')
+        print('Success')
+        print('==================================') 
+
+    elif lua_chon == 9:
+
+        loop_quit = toQuit()
+
+        if loop_quit == 'n':
+            print('==================================')
+            print('Success')
+            print('==================================')
+
+        elif loop_quit == 'Y':
+            print('==================================')
+            print('Success')
+            print('==================================')
+            break
